@@ -1,50 +1,13 @@
-# React + TypeScript + Vite
+# showcase of delayed next step flickering
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+In a tour I have a complex component, which is mounted for a step in the tour, and unmounted after the step.
+For this I use the flushSync function from react-dom, and increment the setIndex in the callback.
+This cannot be done during the renderings, therefore I use a window.setTimeout to wrap it.
 
-Currently, two official plugins are available:
+This creates a flickering of the overlay, because of the **hideSpotlight()** in src/components/Overlay.tsx.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+If I remove the **LIFECYCLE.INIT** and **LIFECYCLE.COMPLETE** from the hiddenLifecycles array, the flickering is gone.
 
-## Expanding the ESLint configuration
+I implemented a prop *keepOverlayMountedBetweenSteps* which defaults to true and which keeps  **LIFECYCLE.INIT** and **LIFECYCLE.COMPLETE** in the hiddenLifecycles array. If it is set to false, those two lifecycles are removed from the hiddenLifecycles array.
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
 
-- Configure the top-level `parserOptions` property like this:
-
-```js
-export default tseslint.config({
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
-```
-
-- Replace `tseslint.configs.recommended` to `tseslint.configs.recommendedTypeChecked` or `tseslint.configs.strictTypeChecked`
-- Optionally add `...tseslint.configs.stylisticTypeChecked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and update the config:
-
-```js
-// eslint.config.js
-import react from 'eslint-plugin-react'
-
-export default tseslint.config({
-  // Set the react version
-  settings: { react: { version: '18.3' } },
-  plugins: {
-    // Add the react plugin
-    react,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended rules
-    ...react.configs.recommended.rules,
-    ...react.configs['jsx-runtime'].rules,
-  },
-})
-```
